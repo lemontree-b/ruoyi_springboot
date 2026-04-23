@@ -22,7 +22,7 @@ ENV  CODE=/app/code/ \
 WORKDIR ${CODE}
 
 COPY --from=builder /app/code/ruoyi-admin/target/${JAR}   .
-ADD ./docker/application.yml  ./docker/application-druid.yml  .
+ADD ./docker/application.yml  ./docker/application-druid.yml  ./
 ADD  ./docker/entry.sh  / 
 
 EXPOSE ${PORT}
