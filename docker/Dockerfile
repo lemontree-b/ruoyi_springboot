@@ -1,7 +1,7 @@
 FROM maven:3.9.14-eclipse-temurin-17-noble  AS  builder 
 LABEL author=lidao996   desc="tmp image for mvn builder"
 ENV CODE=/app/code/ \ 
-    CONF=settings.xml 
+    CONF=./docker/settings.xml 
 
 WORKDIR ${CODE}
 
