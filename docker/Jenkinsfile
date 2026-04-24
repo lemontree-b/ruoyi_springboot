@@ -1,54 +1,31 @@
 pipeline {
-    // 指定在标记为 'docker-node' 的节点上执行
     agent { label 'docker-node' }
-    
     stages {
-        // 阶段1：构建Docker镜像
         stage('1.build') {
             steps {
                 sh '''
-                    // 1. 构建Docker镜像
-                    docker build -f docker/Dockerfile -t harbor.oldboy.cn/web/ruoyi:backend_v1 .
-                    
-                    // 2. 登录私有镜像仓库
-                    docker login -u admin -p Lidao996 harbor.oldboy.cn
-                    
-                    // 3. 推送镜像到私有仓库
-                    docker push harbor.oldboy.cn/web/ruoyi:backend_v1
-                    
-                    // 4. 删除本地镜像
-                    docker rmi harbor.oldboy.cn/web/ruoyi:backend_v1
-                    
-                    // 5. 清理无用镜像
-                    docker image prune -f
+                docker build -f docker/Dockerfile  -t  harbor.oldboy.cn/web/ruoyi:backend_v1  .
+                docker login  -u admin  -p Lidao996 harbor.oldboy.cn
+                docker push  harbor.oldboy.cn/web/ruoyi:backend_v1
+                docker rmi harbor.oldboy.cn/web/ruoyi:backend_v1
+                docker image prune -f
                 '''
             }
         }
-        
-        // 阶段2：人工确认是否部署
-        stage('2.确认是否部署') {
+        stage('2 .确认是否部署') {
             steps {
-                // 显示确认对话框，等待人工输入
                 input '是否继续进行部署'
             }
         }
-        
-        // 阶段3：部署应用
         stage('3.deploy') {
             steps {
                 sh '''
-                    // 定义目标服务器IP列表
-                    ip_list=10.0.0.81
-                    
-                    // 遍历所有目标服务器
-                    for ip in $ip_list
-                    do
-                        // 1. 清理旧容器（删除所有名称包含"ruoyi_backend"的容器）
-                        ssh root@$ip 'docker ps -aq -f "name=ruoyi_backend*" |xargs docker rm -f '
-                        
-                        // 2. 启动新容器
-                        ssh root@$ip "docker run -d --name ruoyi_backend_v1 -p 8080:8080 harbor.oldboy.cn/web/ruoyi:backend_v1 "
-                    done
+                ip_list=10.0.0.81
+                for ip in $ip_list
+                do
+                   ssh  root@$ip  'docker ps -aq -f "name=ruoyi_backend*" |xargs docker rm -f  '
+                   ssh  root@$ip  "docker run  -d  --name ruoyi_backend_v1  -p 8080:8080  harbor.oldboy.cn/web/ruoyi:backend_v1 "
+                done
                 '''
             }
         }
